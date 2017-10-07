@@ -5,81 +5,56 @@ const app = express();
 const request = require('request');
 
 //port 80?
+//Writing to the files (3 places) and error with command input (1 place) shouldn't count as server error? 
 
+prompt.start();
 
-
-  prompt.start();
-
-  prompt.get(['URL', 'sample_file'], function (err, result) {
-    if (err) { return onErr(err); }
-    console.log('Command-line input received:');
-    console.log('  URL: ' + result.URL);
-    console.log('  sample_file: ' + result.sample_file);
-
-    //LOGIC FOR PROBER
-    // setTimeout(function() {
-    //   const stringUrl = '/' + URL;
-    //   app.get(stringUrl, function(req, res){
-    //     fs.writeFile(result.sample_file, body, (err) => {
-    //       if(err){
-    //         console.log("Error in trying to output to samplefile");
-    //         throw err; 
-    //       }
-    //       console.log("SUCCESS");
-    //     });
-    //   });
-    //   modal.style.display = "none";
-    // }, 30000);
+prompt.get(['URL', 'sample_file'], function (err, result) {
+  if (err) { return onErr(err); }
 
   fs.writeFile(result.sample_file, "URL=" + result.URL + "\n", (err) => {
+    //ERROR WITH APPENDING TO FILE
     if(err){
       console.log("Error in trying to output to samplefile");
       throw err; 
     }
     console.log("SUCCESS");
-    });
+  });
 
   setInterval(function() {
-    request('http://www.google.com', function (error, response, body) {
+    var seconds = Math.round(new Date().getTime() / 1000);
+    request(result.URL, function (error, response, body) {
+      //ERROR WITH SERVER 
       if(error){
-        fs.appendFile(result.sample_file, milliseconds + ", -1"+ "\n", (err) =>{
+        fs.appendFile(result.sample_file, seconds + ", -1"+ "\n", (err) =>{
         if(err){
+          //ERROR WITH APPENDING TO FILE
           console.log("Error in trying to output to samplefile");
           throw err; 
         }
       });
       }
-      // var milliseconds = new Date().getTime();
-
-      var seconds = Math.round(new Date().getTime() / 1000);
-      fs.appendFile(result.sample_file, seconds + "," + response.statusCode + "\n", (err) =>{
-        if(err){
-          console.log("Error in trying to output to samplefile");
-          throw err; 
+      else{
+        //REPORT 200 NO MATTER WHAT
+        if(response.statusCode >= 300){
+          response.statusCode = 200;
         }
-      });
+        fs.appendFile(result.sample_file, seconds + ", " + response.statusCode + "\n", (err) =>{
+        //ERROR WITH APPENDING TO FILE
+          if(err){
+            console.log("Error in trying to output to samplefile");
+            throw err; 
+          }
+        }); 
+      }
     });
   }, 30000);
+});
 
-    // fs.writeFile(result.sample_file, 'Hello Node.js', (err) => {
-    //   if (err){
-    //     console.log("You didn't specify two arguments, try again")
-    //     throw err;
-    //   } //this shouldn't count as server error? 
-    //   console.log('The file has been saved!');
-    // });
-  });
-
-
-  function onErr(err) {
-    fs.writeFile(result.sample_file, '-1', (err) => {
-      if (err){
-        console.log("You didn't specify two arguments correctly");
-        throw err;
-      } //this shouldn't count as server error? 
-      console.log('Error (-1) has been logged');
-    });
-  }
-
-
-  // app.listen(80);
+//ERROR WITH COMMAND LINE INPUT
+function onErr(err) {
+    if (err){
+      console.log("You didn't specify two arguments correctly");
+      throw err;
+    } 
+}
