@@ -1,3 +1,5 @@
+Prior to running these instrcutions please git clone: https://github.com/sechoongkim/lsa-ex1.git OR git@github.com:sechoongkim/lsa-ex1.git (depending on your ssh configurations)
+
 1. Please install all app dependancies with the following prompt on command line: $npm install
 
 2. To run the app from the root directory run: $ node prober.js
@@ -7,6 +9,8 @@
 4. Input a file to write to -> ex: output.txt
 
 5. At any point if you wish to kill the program hit ctrl-c
+
+6. Output file will show up in the same directory level as where you run the program (root directory)
 
 
 
